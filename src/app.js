@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json())
 
-const livros = [
+let livros = [
     {id: 1, "titulo": "Senhor dos Aneis"},
     {id: 2, "titulo": "O Hobbit"},
 ]
@@ -23,22 +23,49 @@ app.get('/livros/:id', (req, res) => {
 })
 
 app.post('/livros', (req, res) => {
-    livros.push(req.body);
-    res.status(201).send('Livro cadastrado com sucesso')
+    let livro = {
+        id: livros.length+1,
+        titulo: req.body.titulo
+    };
+    
+    console.log(livro);
+    livros.push(livro);
+
+    let result = {
+        status: true,
+        data: livro
+    }
+
+    res.status(201).json(result)
 })
 
 app.put('/livros/:id', (req, res) => {
-     let index = buscaLivro(req.params.id);
-     livros[index].titulo = req.body.titulo;
-     res.json(livros);
+    let index = buscaLivro(req.params.id);
+    console.log(req.params.id);
+    console.log(index);
+    livros[index].titulo = req.body.titulo;
+     res.json(livros[index]);
 })
 
 app.delete('/livros/:id', (req, res) => {
-    let {id} = req.params;
     let index = buscaLivro(req.params.id);
-    livros.splice(index, 1)
-    res.send(`Livro ${id} removido com sucesso`);
-    
+    console.log(index);
+    if (index < 0) {
+        let result = {
+            status: false,
+            data: "Não encontrado"
+        }
+       res.status(404).json(result); 
+    }
+    else {
+        livros.splice(index, 1)
+
+        let result = {
+            status: true,
+            data: "Excluído com sucesso"
+        }
+        res.json(result);
+    }
 })
  
     function buscaLivro(id) {
